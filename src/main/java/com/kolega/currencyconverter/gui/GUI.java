@@ -20,52 +20,52 @@ public class GUI extends VerticalLayout {
     private final TextField textFieldGBP;
     private final Label exchangeRateLabel;
     double exchangeRate;
-    private boolean isGBPUpdating;
-    private boolean isPLNUpdating;
+    private boolean isUpdating;
 
     public GUI() {
         textFieldPLN = new TextField("PLN");
         textFieldGBP = new TextField("GBP");
         exchangeRateLabel = new Label("");
 
-        textFieldPLN.addValueChangeListener(new ValueChangeListener<ValueChangeEvent<String>>() {
-            @Override
-            public void valueChanged(ValueChangeEvent<String> event) {
-                if (!isGBPUpdating) {
-                    double pln = Double.parseDouble(event.getValue());
+        textFieldPLN.addValueChangeListener((ValueChangeListener<ValueChangeEvent<String>>) event -> {
+            if (!isUpdating) {
+                double pln = Double.parseDouble(event.getValue());
+                if (pln < 0) {
+                    textFieldGBP.setValue("Negative value!");
+                } else {
                     try {
-                        isPLNUpdating = true;
-                        exchangeRate =  exchangeRateGetter.getExchangeRate();
-                        textFieldGBP.setValue((doubleFormatter(pln/exchangeRate)));
+                        isUpdating = true;
+                        exchangeRate = exchangeRateGetter.getExchangeRate();
+                        textFieldGBP.setValue((doubleFormatter(pln / exchangeRate)));
                         exchangeRateLabel.setText("1 GBP = " + doubleFormatter(exchangeRate) + " PLN");
                     } catch (NumberFormatException | URISyntaxException | IOException | InterruptedException e) {
                         textFieldGBP.setValue("Wrong input!");
                     } finally {
-                        isPLNUpdating = false;
+                        isUpdating = false;
                     }
                 }
             }
         });
 
-        textFieldGBP.addValueChangeListener(new ValueChangeListener<ValueChangeEvent<String>>() {
-            @Override
-            public void valueChanged(ValueChangeEvent<String> event) {
-                if (!isPLNUpdating) {
-                    double gbp = Double.parseDouble(event.getValue());
+        textFieldGBP.addValueChangeListener((ValueChangeListener<ValueChangeEvent<String>>) event -> {
+            if (!isUpdating) {
+                double gbp = Double.parseDouble(event.getValue());
+                if (gbp < 0) {
+                    textFieldPLN.setValue("Negative value!");
+                } else {
                     try {
-                        isGBPUpdating = true;
-                        exchangeRate =  exchangeRateGetter.getExchangeRate();
+                        isUpdating = true;
+                        exchangeRate = exchangeRateGetter.getExchangeRate();
                         textFieldPLN.setValue(doubleFormatter(gbp * exchangeRate));
                         exchangeRateLabel.setText("1 GBP = " + doubleFormatter(exchangeRate) + " PLN");
                     } catch (NumberFormatException | URISyntaxException | IOException | InterruptedException e) {
                         textFieldPLN.setValue("Wrong input!");
                     } finally {
-                        isGBPUpdating = false;
+                        isUpdating = false;
                     }
                 }
             }
         });
-
         add(textFieldPLN, textFieldGBP, exchangeRateLabel);
     }
 
