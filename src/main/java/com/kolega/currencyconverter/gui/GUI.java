@@ -3,7 +3,9 @@ package com.kolega.currencyconverter.gui;
 import com.kolega.currencyconverter.core.ExchangeRateGetter;
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
 import com.vaadin.flow.component.HasValue.ValueChangeListener;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
@@ -12,7 +14,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 
-@Route("gui")
+@Route("converter")
 public class GUI extends VerticalLayout {
     ExchangeRateGetter exchangeRateGetter = ExchangeRateGetter.getInstance();
 
@@ -23,55 +25,65 @@ public class GUI extends VerticalLayout {
     private boolean isUpdating;
 
     public GUI() {
-        textFieldPLN = new TextField("PLN");
-        textFieldGBP = new TextField("GBP");
-        exchangeRateLabel = new Label("");
+        this.textFieldPLN = new TextField("");
+        Div plnSuffix = new Div();
+        plnSuffix.setText("PLN");
+        this.textFieldPLN.setSuffixComponent(plnSuffix);
 
-        textFieldPLN.addValueChangeListener((ValueChangeListener<ValueChangeEvent<String>>) event -> {
-            if (!isUpdating) {
+        this.textFieldGBP = new TextField("");
+        Div gbpSuffix = new Div();
+        gbpSuffix.setText("GBP");
+        this.textFieldGBP.setSuffixComponent(gbpSuffix);
+        this.exchangeRateLabel = new Label("");
+
+        this.textFieldPLN.addValueChangeListener((ValueChangeListener<ValueChangeEvent<String>>) event -> {
+            if (!this.isUpdating) {
                 double pln = Double.parseDouble(event.getValue());
                 if (pln < 0) {
-                    textFieldGBP.setValue("Negative value!");
+                    this.textFieldGBP.setValue("Negative value!");
                 } else {
                     try {
-                        isUpdating = true;
-                        exchangeRate = exchangeRateGetter.getExchangeRate();
-                        textFieldGBP.setValue((doubleFormatter(pln / exchangeRate)));
-                        exchangeRateLabel.setText("1 GBP = " + doubleFormatter(exchangeRate) + " PLN");
+                        this.isUpdating = true;
+                        this.exchangeRate = this.exchangeRateGetter.getExchangeRate("bid");
+                        this.textFieldGBP.setValue((doubleFormatter(pln / this.exchangeRate)));
+                        this.exchangeRateLabel.setText("1 GBP = " + doubleFormatter(this.exchangeRate) + " PLN");
+                        this.textFieldPLN.setLabel("Sent");
+                        this.textFieldGBP.setLabel("Received");
                     } catch (NumberFormatException | URISyntaxException | IOException | InterruptedException e) {
-                        textFieldGBP.setValue("Wrong input!");
+                        this.textFieldGBP.setValue("Wrong input!");
                     } finally {
-                        isUpdating = false;
+                        this.isUpdating = false;
                     }
                 }
             }
         });
 
-        textFieldGBP.addValueChangeListener((ValueChangeListener<ValueChangeEvent<String>>) event -> {
-            if (!isUpdating) {
+        this.textFieldGBP.addValueChangeListener((ValueChangeListener<ValueChangeEvent<String>>) event -> {
+            if (!this.isUpdating) {
                 double gbp = Double.parseDouble(event.getValue());
                 if (gbp < 0) {
-                    textFieldPLN.setValue("Negative value!");
+                    this.textFieldPLN.setValue("Negative value!");
                 } else {
                     try {
-                        isUpdating = true;
-                        exchangeRate = exchangeRateGetter.getExchangeRate();
-                        textFieldPLN.setValue(doubleFormatter(gbp * exchangeRate));
-                        exchangeRateLabel.setText("1 GBP = " + doubleFormatter(exchangeRate) + " PLN");
+                        this.isUpdating = true;
+                        this.exchangeRate = this.exchangeRateGetter.getExchangeRate("ask");
+                        this.textFieldPLN.setValue(doubleFormatter(gbp * this.exchangeRate));
+                        this.exchangeRateLabel.setText("1 GBP = " + doubleFormatter(this.exchangeRate) + " PLN");
+                        this.textFieldGBP.setLabel("Sent");
+                        this.textFieldPLN.setLabel("Received");
                     } catch (NumberFormatException | URISyntaxException | IOException | InterruptedException e) {
-                        textFieldPLN.setValue("Wrong input!");
+                        this.textFieldPLN.setValue("Wrong input!");
                     } finally {
-                        isUpdating = false;
+                        this.isUpdating = false;
                     }
                 }
             }
         });
-        add(textFieldPLN, textFieldGBP, exchangeRateLabel);
+        add(this.textFieldPLN, this.textFieldGBP, this.exchangeRateLabel);
     }
 
     private String doubleFormatter(Double val){
         return new DecimalFormat("0.00")
                 .format(Math.floor(val * 100) / 100);
     }
-
 }

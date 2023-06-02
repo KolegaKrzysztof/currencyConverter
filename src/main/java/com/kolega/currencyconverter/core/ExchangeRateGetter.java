@@ -18,17 +18,18 @@ public class ExchangeRateGetter {
     private ExchangeRateGetter(){
     }
 
-    public double getExchangeRate() throws URISyntaxException, IOException, InterruptedException {
+    public double getExchangeRate(String bidOrAsk) throws URISyntaxException, IOException, InterruptedException {
         HttpResponse<String> getResponse = HttpClient.newHttpClient()
                 .send(HttpRequest.newBuilder(
-                        new URI("https://api.nbp.pl/api/exchangerates/rates/a/gbp/?format=json")
+                        new URI("https://api.nbp.pl/api/exchangerates/rates/c/gbp/today/?format=json")
                         ).build(), HttpResponse.BodyHandlers.ofString());
 
         return JsonParser.parseString(getResponse.body()).getAsJsonObject().getAsJsonArray("rates")
-                .get(0).getAsJsonObject().get("mid").getAsDouble();
+                .get(0).getAsJsonObject().get(bidOrAsk).getAsDouble();
     }
 
     public static ExchangeRateGetter getInstance() {
         return instance;
     }
+
 }
