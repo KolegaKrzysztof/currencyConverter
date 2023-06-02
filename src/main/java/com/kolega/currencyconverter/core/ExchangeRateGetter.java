@@ -26,6 +26,7 @@ public class ExchangeRateGetter {
 
         return JsonParser.parseString(getResponse.body()).getAsJsonObject().getAsJsonArray("rates")
                 .get(0).getAsJsonObject().get(bidOrAsk).getAsDouble();
+
     }
 
     public static ExchangeRateGetter getInstance() {
