@@ -18,4 +18,4 @@ Running the Application:
 Once the build is successful, run the following command to start the application:        
   java -jar target/currencyConverter.jar
   
-The application will start running on port 7070. Open a web browser and navigate to http://localhost:7070 to access the Currency Converter.
+The application will start running on port 7070. Open a web browser and navigate to http://localhost:7070/converter to access the Currency Converter.
